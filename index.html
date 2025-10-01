@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adyen Terminal Selector (v16 - Final)</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f9; color: #122239; margin: 0; padding: 2rem; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); padding: 2rem 3rem; max-width: 700px; width: 100%; }
+        h1 { color: #00112c; text-align: center; margin-bottom: 2rem; }
+        .question { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e6e9eb; }
+        .question:last-of-type { border-bottom: none; }
+        label { font-weight: 600; display: block; margin-bottom: 0.75rem; }
+        select { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; background-color: #fff; }
+        #result { margin-top: 2rem; }
+        #result h2 { margin-top: 0; color: #00112c; text-align: center; }
+        .terminal-card { display: flex; align-items: center; padding: 1.5rem; background-color: #f0f9ff; border: 1px solid #b3e0ff; border-radius: 8px; margin-bottom: 1rem; }
+        .terminal-card img { width: 100px; height: auto; margin-right: 1.5rem; flex-shrink: 0; }
+        .terminal-card-info h3 { margin: 0 0 0.5rem 0; }
+        .terminal-card-info p { margin: 0 0 0.75rem 0; font-size: 0.9rem; }
+        .terminal-card-info a { font-weight: 600; color: #0042d6; text-decoration: none; }
+        .terminal-card-info a:hover { text-decoration: underline; }
+        .hidden { display: none; }
+        button { background-color: #0042d6; color: white; border: none; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight: 600; border-radius: 4px; cursor: pointer; display: block; margin: 1.5rem auto 0; }
+        button:hover { background-color: #0036b3; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Adyen Terminal Selector (v16)</h1>
+    <form id="quiz">
+        <div class="question" id="q1">
+            <label for="industry">1. In which industry does the client operate?</label>
+            <select id="industry" onchange="handleQuestion(1)">
+                <option value="">-- Select an industry --</option>
+                <option value="large_retail">Large Format Retail</option>
+                <option value="small_retail">Small Format Retail</option>
+                <option value="f&b">Food & Beverage</option>
+                <option value="hospitality">Hospitality</option>
+                <option value="luxury">Luxury Retail</option>
+            </select>
+        </div>
+        <div class="question hidden" id="q2">
+            <label for="use_case">2. Where will the payment take place?</label>
+            <select id="use_case" onchange="handleQuestion(2)">
+                <option value="">-- Select an environment --</option>
+                <option value="countertop">At a fixed counter/checkout</option>
+                <option value="mobile">On the move, next to the customer</option>
+                <option value="unattended">In a self-service kiosk</option>
+                <option value="smartphone">Directly on the seller's smartphone</option>
+            </select>
+        </div>
+        <div class="question hidden" id="q3">
+            <label for="card_read">3. What are the card acceptance requirements?</label>
+            <select id="card_read" onchange="handleQuestion(3)">
+                <option value="">-- Select an option --</option>
+                <option value="all">Chip/swipe + Contactless</option>
+                <option value="contactless_only">Contactless payments only</option>
+            </select>
+        </div>
+        <div class="question hidden" id="q4">
+            <label for="input_type">4. Is a physical keypad required for customer interaction?</label>
+            <select id="input_type" onchange="handleQuestion(4)">
+                <option value="">-- Select an option --</option>
+                <option value="physical">Yes, a physical keypad is necessary</option>
+                <option value="touchscreen">No, touchscreen only is ideal</option>
+            </select>
+        </div>
+        <div class="question hidden" id="q5">
+            <label for="os_type">5. Does the terminal need to run other business apps (all-in-one)?</label>
+            <select id="os_type" onchange="handleQuestion(5)">
+                <option value="">-- Select a requirement --</option>
+                <option value="payment_only">No, payments only is fine (Linux OS)</option>
+                <option value="all_in_one">Yes, it needs other apps (Android OS)</option>
+            </select>
+        </div>
+        <div class="question hidden" id="q6">
+            <label for="offline_processing">6. Must the terminal work if the internet connection fails?</label>
+            <select id="offline_processing" onchange="handleQuestion(6)">
+                <option value="">-- Select a requirement --</option>
+                <option value="no">No, internet is reliable</option>
+                <option value="yes">Yes, offline processing is critical</option>
+            </select>
+        </div>
+        <div class="question hidden" id="q7">
+            <label for="international">7. Does the business serve many international tourists?</label>
+            <select id="international" onchange="handleQuestion(7)">
+                <option value="">-- Select an audience --</option>
+                <option value="no">No, mainly local customers</option>
+                <option value="yes">Yes, frequently (needs DCC)</option>
+            </select>
+        </div>
+        <div class="question hidden" id="q8">
+            <label for="final_feature">8. Which of these is the final deciding feature?</label>
+            <select id="final_feature" onchange="handleQuestion(8)">
+                <option value="">-- Select a feature --</option>
+                <option value="printer">Must have a built-in printer</option>
+                <option value="qrcode">Must accept QR code payments</option>
+            </select>
+        </div>
+    </form>
+    <div id="result" class="hidden">
+        <h2>Recommended Terminal(s)</h2>
+        <div id="recommendation"></div>
+    </div>
+    <button id="resetButton" class="hidden" onclick="resetQuiz()">Start Over</button>
+</div>
+
+<script>
+    const terminals = [
+        // LINKS DE IMAGEM CORRIGIDOS E VERIFICADOS POR VOCÊ
+        { model: "SFO1", description: "A powerful Android terminal for demanding countertop environments.", category: "Countertop", os: "Android", printer: false, offline: true, dcc: true, qrcode: true, input: "touchscreen", card_read: "all", industries: ["large_retail", "hospitality", "luxury"], productUrl: "https://www.adyen.com/devices/sfo1", imageUrl: "https://i.ibb.co/1G2gkCDb/SFO1.webp" },
+        { model: "Tap to Pay on Android", description: "Accept contactless payments directly on an Android device.", category: "Smartphone", os: "iOS/Android", printer: false, offline: false, dcc: true, qrcode: true, input: "touchscreen", card_read: "contactless_only", industries: ["small_retail", "f&b"], productUrl: "https://www.adyen.com/devices/tap-to-pay-on-android", imageUrl: "https://i.ibb.co/gbR8f75n/Tap-to-Pay-on-Android.webp" },
+        { model: "Tap to Pay on iPhone", description: "Accept contactless payments directly on an iPhone.", category: "Smartphone", os: "iOS/Android", printer: false, offline: false, dcc: true, qrcode: true, input: "touchscreen", card_read: "contactless_only", industries: ["small_retail", "f&b"], productUrl: "https://www.adyen.com/devices/tap-to-pay-on-iphone", imageUrl: "https://i.ibb.co/VYxm7W3M/Tap-to-Pay-on-i-Phone.webp" },
+        { model: "NYC1", description: "A versatile Android card reader for businesses on the move.", category: "Countertop", os: "Android", printer: false, offline: true, dcc: true, qrcode: true, input: "touchscreen", card_read: "all", industries: ["large_retail", "hospitality", "luxury"], productUrl: "https://www.adyen.com/devices/nyc1", imageUrl: "https://i.ibb.co/BVVFSJZS/NYC1.webp" },
+        { model: "Verifone P400 Plus", description: "A reliable countertop terminal for a familiar checkout experience.", category: "Countertop", os: "Linux", printer: false, offline: true, dcc: true, qrcode: false, input: "physical", card_read: "all", industries: ["large_retail", "small_retail"], productUrl: "https://www.adyen.com/devices/verifone-p400-plus", imageUrl: "https://i.ibb.co/vWYrWFB/P400-Plus.webp" },
+        { model: "Verifone V400c", description: "A countertop terminal with a built-in printer for seamless checkouts.", category: "Countertop", os: "Linux", printer: true, offline: true, dcc: true, qrcode: false, input: "physical", card_read: "all", industries: ["large_retail", "small_retail"], productUrl: "https://www.adyen.com/devices/verifone-v400c-plus", imageUrl: "https://i.ibb.co/yBP4GrSX/V400c-Plus.webp" },
+        { model: "Verifone M400", description: "A multimedia countertop terminal with a large touchscreen.", category: "Countertop", os: "Linux", printer: false, offline: true, dcc: true, qrcode: false, input: "touchscreen", card_read: "all", industries: ["large_retail", "small_retail", "luxury"], productUrl: "https://www.adyen.com/devices/verifone-m400", imageUrl: "https://i.ibb.co/8g0L3BrL/M400.webp" },
+        { model: "Verifone M450", description: "A premium mobile terminal with a large color touchscreen.", category: "Mobile", os: "Linux", printer: false, offline: true, dcc: true, qrcode: true, input: "touchscreen", card_read: "all", industries: ["f&b", "hospitality", "luxury"], productUrl: "https://www.adyen.com/devices/verifone-m450", imageUrl: "https://i.ibb.co/fGMDhPPm/M450.webp" },
+        { model: "Castles S1F2", description: "An all-in-one mobile terminal with a built-in printer.", category: "Mobile", os: "Android", printer: true, offline: true, dcc: true, qrcode: true, input: "touchscreen", card_read: "all", industries: ["f&b", "small_retail", "hospitality"], productUrl: "https://www.adyen.com/devices/castles-s1f2", imageUrl: "https://i.ibb.co/mr4v3DGJ/S1F2.webp" },
+        { model: "Castles S1E2L", description: "A sleek and lightweight all-in-one mobile terminal.", category: "Mobile", os: "Android", printer: false, offline: true, dcc: true, qrcode: true, input: "touchscreen", card_read: "all", industries: ["small_retail", "f&b", "luxury"], productUrl: "https://www.adyen.com/devices/castles-s1e2l", imageUrl: "https://i.ibb.co/NdrxFVzC/S1E2L.webp" },
+        { model: "Castles S1U2", description: "An all-in-one Android terminal for self-service kiosks.", category: "Unattended", os: "Android", printer: false, offline: true, dcc: true, qrcode: true, input: "touchscreen", card_read: "all", industries: ["large_retail", "hospitality"], productUrl: "https://www.adyen.com/devices/castles-s1u2", imageUrl: "https://i.ibb.co/tT26GsS9/S1U2.webp" },
+        { model: "Verifone P630", description: "A compact and secure countertop card reader.", category: "Countertop", os: "Linux", printer: false, offline: true, dcc: true, qrcode: false, input: "physical", card_read: "all", industries: ["large_retail", "small_retail"], productUrl: "https://www.adyen.com/devices/verifone-p630", imageUrl: "https://i.ibb.co/ch40M0Kx/P630.webp" },
+        { model: "Verifone V400m", description: "A durable and versatile mobile terminal.", category: "Mobile", os: "Linux", printer: false, offline: true, dcc: true, qrcode: false, input: "physical", card_read: "all", industries: ["f&b", "small_retail"], productUrl: "https://www.adyen.com/devices/verifone-v400m", imageUrl: "https://i.ibb.co/whL6MNnN/V400m.webp" },
+        { model: "Verifone V240m", description: "A robust mobile terminal with a physical keypad and printer.", category: "Mobile", os: "Linux", printer: true, offline: true, dcc: true, qrcode: false, input: "physical", card_read: "all", industries: ["f&b", "small_retail"], productUrl: "https://www.adyen.com/devices/verifone-v240m", imageUrl: "https://i.ibb.co/HDsdjsH5/V240m-Plus.webp" },
+        { model: "AMS1", description: "A pocket-sized and powerful Android terminal for mobile payments.", category: "Mobile", os: "Android", printer: false, offline: true, dcc: true, qrcode: true, input: "touchscreen", card_read: "all", industries: ["f&b", "small_retail", "luxury"], productUrl: "https://www.adyen.com/devices/ams1", imageUrl: "https://i.ibb.co/V06CBvZF/AMS1.webp" }
+    ];
+
+    // A lógica JavaScript permanece a mesma da v15
+    function handleQuestion(level ) {
+        const useCase = document.getElementById('use_case').value;
+        for (let i = level + 1; i <= 8; i++) { document.getElementById(`q${i}`).classList.add('hidden'); }
+        if (level === 2 && useCase === 'smartphone') { document.getElementById('q3').classList.remove('hidden'); return; }
+        if (level === 3 && document.getElementById('use_case').value === 'smartphone') { calculateResult(); return; }
+        const nextQuestion = document.getElementById(`q${level + 1}`);
+        if (nextQuestion) {
+            if (level === 2 && useCase !== 'smartphone') { document.getElementById('q4').classList.remove('hidden'); } 
+            else { nextQuestion.classList.remove('hidden'); }
+        } else { calculateResult(); }
+    }
+    function calculateResult() {
+        const answers = { industry: document.getElementById('industry').value, use_case: document.getElementById('use_case').value, card_read: document.getElementById('card_read').value, input_type: document.getElementById('input_type').value, os_type: document.getElementById('os_type').value, offline: document.getElementById('offline_processing').value, international: document.getElementById('international').value, final_feature: document.getElementById('final_feature').value };
+        let filtered = [...terminals];
+        const wasAnswered = (id) => document.getElementById(id).offsetParent !== null;
+        if (answers.use_case === 'smartphone') {
+            if (answers.card_read === 'all') { filtered = terminals.filter(t => t.model === 'NYC1'); } 
+            else if (answers.card_read === 'contactless_only') { filtered = terminals.filter(t => t.category === 'Smartphone'); }
+            displayResult(filtered); return;
+        }
+        if (wasAnswered('q1') && answers.industry) filtered = filtered.filter(t => t.industries.includes(answers.industry));
+        if (wasAnswered('q2') && answers.use_case) filtered = filtered.filter(t => t.category.toLowerCase() === answers.use_case);
+        if (wasAnswered('q4') && answers.input_type) filtered = filtered.filter(t => t.input === answers.input_type);
+        if (wasAnswered('q5') && answers.os_type) { if (answers.os_type === 'all_in_one') filtered = filtered.filter(t => t.os === 'Android'); if (answers.os_type === 'payment_only') filtered = filtered.filter(t => t.os === 'Linux'); }
+        if (wasAnswered('q6') && answers.offline === 'yes') filtered = filtered.filter(t => t.offline === true);
+        if (wasAnswered('q7') && answers.international === 'yes') filtered = filtered.filter(t => t.dcc === true);
+        const final_candidates = [...filtered];
+        if (wasAnswered('q8') && answers.final_feature) {
+            if (answers.final_feature === 'printer') filtered = filtered.filter(t => t.printer === true);
+            if (answers.final_feature === 'qrcode') filtered = filtered.filter(t => t.qrcode === true);
+        }
+        if (filtered.length === 0 && final_candidates.length > 0) { displayResult(final_candidates, true); } else { displayResult(filtered); }
+    }
+    function displayResult(result, fallback = false) {
+        const recommendationDiv = document.getElementById('recommendation');
+        document.getElementById('quiz').classList.add('hidden');
+        document.getElementById('resetButton').classList.remove('hidden');
+        document.getElementById('result').classList.remove('hidden');
+        let html = '';
+        if (result.length > 0) {
+            if (fallback) { html += '<p style="text-align:center;">No single terminal matches your final requirement. Based on the previous steps, these are the closest options:</p>'; }
+            result.forEach(t => { html += `<div class="terminal-card"><img src="${t.imageUrl}" alt="${t.model}"><div class="terminal-card-info"><h3>${t.model}</h3><p>${t.description}</p><a href="${t.productUrl}" target="_blank">View Product Page &rarr;</a></div></div>`; });
+        } else { html = '<p style="text-align:center;">No terminals match your selected criteria. Please try again with different options.</p>'; }
+        recommendationDiv.innerHTML = html;
+    }
+    function resetQuiz() {
+        document.getElementById('quiz').reset();
+        document.getElementById('quiz').classList.remove('hidden');
+        document.getElementById('result').classList.add('hidden');
+        document.getElementById('resetButton').classList.add('hidden');
+        for (let i = 2; i <= 8; i++) { document.getElementById(`q${i}`).classList.add('hidden'); }
+    }
+    document.addEventListener('DOMContentLoaded', (event) => {
+        for (let i = 2; i <= 8; i++) { document.getElementById(`q${i}`).classList.add('hidden'); }
+    });
+</script>
+
+</body>
+</html>
