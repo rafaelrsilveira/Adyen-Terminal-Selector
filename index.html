@@ -185,5 +185,21 @@
     });
 </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        // Namespace: adyen-selector-tool (para evitar conflitos com outros contadores)
+        // Key: v1 (você pode mudar para v2 se quiser resetar o contador no futuro)
+        const namespace = "adyen-selector-tool";
+        const key = "v1";
+
+        fetch(`https://api.countapi.xyz/hit/${namespace}/${key}` )
+            .then(response => response.json())
+            .then(data => {
+                console.log(`Esta ferramenta foi utilizada ${data.value} vezes.`);
+            })
+            .catch(error => console.error("Contador não pôde ser atualizado.", error));
+    });
+</script>
+
 </body>
 </html>
