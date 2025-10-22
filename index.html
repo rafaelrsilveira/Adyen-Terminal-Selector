@@ -74,11 +74,11 @@
         { model: "Tap to Pay on Android", description: "Accept contactless payments directly on an Android device.", category: "Mobile", os: "iOS/Android", printer: false, offline: false, dcc: true, input: "touchscreen", card_read: "contactless_only", industries: ["small_retail", "f&b", "hospitality", "luxury"], productUrl: "https://www.adyen.com/devices/tap-to-pay-on-android", imageUrl: "https://i.ibb.co/gbR8f75n/Tap-to-Pay-on-Android.webp" },
         { model: "Tap to Pay on iPhone", description: "Accept contactless payments directly on an iPhone.", category: "Mobile", os: "iOS/Android", printer: false, offline: false, dcc: true, input: "touchscreen", card_read: "contactless_only", industries: ["small_retail", "f&b", "hospitality", "luxury"], productUrl: "https://www.adyen.com/devices/tap-to-pay-on-iphone", imageUrl: "https://i.ibb.co/VYxm7W3M/Tap-to-Pay-on-i-Phone.webp" },
         { model: "NYC1", description: "A versatile Android card reader for businesses on the move.", category: "Mobile", os: "Android", printer: false, offline: true, dcc: true, input: "touchscreen", card_read: "all", industries: ["large_retail", "hospitality", "luxury"], productUrl: "https://www.adyen.com/devices/nyc1", imageUrl: "https://i.ibb.co/BVVFSJZS/NYC1.webp" },
-        // *** DATA CHANGE: M450 is now 'Countertop' ***
-        { model: "Verifone M450", description: "A premium countertop terminal with a large color touchscreen.", category: "Countertop", os: "Linux", printer: false, offline: true, dcc: true, input: "touchscreen", card_read: "all", industries: ["f&b", "hospitality", "luxury"], productUrl: "https://www.adyen.com/devices/verifone-m450", imageUrl: "https://i.ibb.co/fGMDhPPm/M450.webp" },
+        { model: "Verifone M450", description: "A premium countertop terminal with a large color touchscreen.", category: "Countertop", os: "Linux", printer: false, offline: true, dcc: true, input: "physical", card_read: "all", industries: ["f&b", "hospitality", "luxury"], productUrl: "https://www.adyen.com/devices/verifone-m450", imageUrl: "https://i.ibb.co/fGMDhPPm/M450.webp" },
         { model: "Castles S1F2", description: "An all-in-one mobile terminal with a built-in printer.", category: "Mobile", os: "Android", printer: true, offline: true, dcc: true, input: "touchscreen", card_read: "all", industries: ["f&b", "small_retail", "hospitality"], productUrl: "https://www.adyen.com/devices/castles-s1f2", imageUrl: "https://i.ibb.co/mr4v3DGJ/S1F2.webp" },
         { model: "Castles S1U2", description: "An all-in-one Android terminal for self-service kiosks.", category: "Unattended", os: "Android", printer: false, offline: true, dcc: true, input: "touchscreen", card_read: "all", industries: ["large_retail", "hospitality"], productUrl: "https://www.adyen.com/devices/castles-s1u2", imageUrl: "https://i.ibb.co/tT26GsS9/S1U2.webp" },
-        { model: "Verifone P630", description: "A compact and secure countertop card reader.", category: "Countertop", os: "Linux", printer: false, offline: true, dcc: true, input: "physical", card_read: "all", industries: ["large_retail", "small_retail", "hospitality"], productUrl: "https://www.adyen.com/devices/verifone-p630", imageUrl: "https://i.ibb.co/ch40M0Kx/P630.webp" },
+        // *** DATA CHANGE: P630 now includes 'f&b' industry ***
+        { model: "Verifone P630", description: "A compact and secure countertop card reader.", category: "Countertop", os: "Linux", printer: false, offline: true, dcc: true, input: "physical", card_read: "all", industries: ["large_retail", "small_retail", "hospitality", "f&b"], productUrl: "https://www.adyen.com/devices/verifone-p630", imageUrl: "https://i.ibb.co/ch40M0Kx/P630.webp" },
         { model: "AMS1", description: "A pocket-sized and powerful Android terminal for mobile payments.", category: "Mobile", os: "Android", printer: false, offline: true, dcc: true, input: "touchscreen", card_read: "all", industries: ["f&b", "small_retail", "luxury"], productUrl: "https://www.adyen.com/devices/ams1", imageUrl: "https://i.ibb.co/V06CBvZF/AMS1.webp" }
     ];
 
@@ -98,8 +98,17 @@
             const answer = select.value;
 
             if (!answer) {
-                const possibleValues = getPossibleValues(candidates, qId);
+                const industry = document.getElementById('industry').value;
+                if (qId === 'use_case') {
+                    if (industry === 'large_retail') {
+                        const tapToPay = terminals.filter(t => t.card_read === 'contactless_only');
+                        tapToPay.forEach(ttp => {
+                            if (!candidates.some(c => c.model === ttp.model)) candidates.push(ttp);
+                        });
+                    }
+                }
 
+                const possibleValues = getPossibleValues(candidates, qId);
                 if (possibleValues.size === 0) {
                     displayResult(candidates, true);
                     return;
@@ -108,13 +117,19 @@
                 for (const option of select.options) {
                     if (option.value) option.disabled = !possibleValues.has(option.value);
                 }
-
-                const industry = document.getElementById('industry').value;
+                
+                const useCase = document.getElementById('use_case').value;
                 if (qId === 'use_case' && (industry === 'large_retail' || industry === 'f&b')) {
                     for (const option of select.options) if(option.value) option.disabled = false;
                 }
                 if (qId === 'offline_processing' || qId === 'international') {
                     for (const option of select.options) if(option.value) option.disabled = false;
+                }
+                if (qId === 'input_type' && (industry === 'f&b' || industry === 'hospitality') && useCase === 'unattended') {
+                     for (const option of select.options) if(option.value) option.disabled = false;
+                }
+                if (qId === 'card_read' && industry === 'large_retail' && useCase === 'mobile') {
+                     for (const option of select.options) if(option.value) option.disabled = false;
                 }
                 
                 document.getElementById(`q-${qId}`).classList.remove('hidden');
@@ -122,7 +137,7 @@
             }
 
             if (qId === 'card_read' && document.getElementById('use_case').value === 'mobile' && answer === 'contactless_only') {
-                const tapToPayTerminals = candidates.filter(t => t.card_read === 'contactless_only' && t.category.toLowerCase() === 'mobile');
+                const tapToPayTerminals = terminals.filter(t => t.card_read === 'contactless_only' && t.category.toLowerCase() === 'mobile');
                 displayResult(tapToPayTerminals);
                 return;
             }
@@ -131,7 +146,6 @@
             candidates = filterCandidates(candidates, qId, answer);
         }
 
-        // *** BUG FIX: This call ensures the result is displayed if the loop completes ***
         displayResult(candidates);
     }
 
@@ -147,6 +161,9 @@
             if (qId === 'use_case') {
                 if (answer === 'unattended') {
                     return value.toLowerCase() === 'unattended' || value.toLowerCase() === 'countertop';
+                }
+                if (answer === 'countertop' && terminal.category.toLowerCase() === 'mobile' && terminal.printer === true) {
+                    return true;
                 }
                 return value.toLowerCase() === answer;
             }
@@ -200,11 +217,7 @@
         for (let i = 1; i < questionOrder.length; i++) {
             document.getElementById(`q-${questionOrder[i]}`).classList.add('hidden');
         }
-        questionOrder.forEach(qId => {
-            for (const option of document.getElementById(qId).options) {
-                option.disabled = false;
-            }
-        });
+        document.getElementById('q-industry').classList.remove('hidden');
     }
 
     document.addEventListener('DOMContentLoaded', () => {
