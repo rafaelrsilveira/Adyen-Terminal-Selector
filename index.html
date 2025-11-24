@@ -31,37 +31,37 @@
 <div class="container">
     <h1>Adyen Terminal Selector</h1>
     <form id="quiz">
-        <div class="question" id="q-industry">
+        <div class="question" id="q1">
             <label for="industry">1. In which industry does the client operate?</label>
-            <select id="industry" onchange="updateState()"><option value="">-- Select an industry --</option><option value="large_retail">Large Format Retail</option><option value="small_retail">Small Format Retail</option><option value="f&b">Food & Beverage</option><option value="hospitality">Hospitality</option><option value="luxury">Luxury Retail</option></select>
+            <select id="industry" onchange="handleQuestion(1)"><option value="">-- Select an industry --</option><option value="large_retail">Large Format Retail</option><option value="small_retail">Small Format Retail</option><option value="f&b">Food & Beverage</option><option value="hospitality">Hospitality</option><option value="luxury">Luxury Retail</option></select>
         </div>
-        <div class="question hidden" id="q-use_case">
+        <div class="question hidden" id="q2">
             <label for="use_case">2. Where will the payment take place?</label>
-            <select id="use_case" onchange="updateState()"><option value="">-- Select an environment --</option><option value="countertop">At a fixed counter/checkout</option><option value="mobile">On the move, next to the customer</option><option value="unattended">In a self-service kiosk</option></select>
+            <select id="use_case" onchange="handleQuestion(2)"><option value="">-- Select an environment --</option><option value="countertop">At a fixed counter/checkout</option><option value="mobile">On the move, next to the customer</option><option value="unattended">In a self-service kiosk</option><option value="smartphone">Directly on the seller's smartphone</option></select>
         </div>
-        <div class="question hidden" id="q-card_read">
+        <div class="question hidden" id="q3">
             <label for="card_read">3. What are the card acceptance requirements?</label>
-            <select id="card_read" onchange="updateState()"><option value="">-- Select an option --</option><option value="all">Chip/swipe + Contactless</option><option value="contactless_only">Contactless payments only</option></select>
+            <select id="card_read" onchange="handleQuestion(3)"><option value="">-- Select an option --</option><option value="all">Chip/swipe + Contactless</option><option value="contactless_only">Contactless payments only</option></select>
         </div>
-        <div class="question hidden" id="q-input_type">
+        <div class="question hidden" id="q4">
             <label for="input_type">4. Is a physical keypad required for customer interaction?</label>
-            <select id="input_type" onchange="updateState()"><option value="">-- Select an option --</option><option value="physical">Yes, a physical keypad is necessary</option><option value="touchscreen">No, touchscreen only is ideal</option></select>
+            <select id="input_type" onchange="handleQuestion(4)"><option value="">-- Select an option --</option><option value="physical">Yes, a physical keypad is necessary</option><option value="touchscreen">No, touchscreen only is ideal</option></select>
         </div>
-        <div class="question hidden" id="q-os_type">
+        <div class="question hidden" id="q5">
             <label for="os_type">5. Does the terminal need to run other business apps (all-in-one)?</label>
-            <select id="os_type" onchange="updateState()"><option value="">-- Select a requirement --</option><option value="payment_only">No, payments only is fine</option><option value="all_in_one">Yes, it needs other apps (Android OS)</option></select>
+            <select id="os_type" onchange="handleQuestion(5)"><option value="">-- Select a requirement --</option><option value="payment_only">No, payments only is fine (Linux OS)</option><option value="all_in_one">Yes, it needs other apps (Android OS)</option></select>
         </div>
-        <div class="question hidden" id="q-offline_processing">
+        <div class="question hidden" id="q6">
             <label for="offline_processing">6. Must the terminal work if the internet connection fails?</label>
-            <select id="offline_processing" onchange="updateState()"><option value="">-- Select a requirement --</option><option value="no">No, internet is reliable</option><option value="yes">Yes, offline processing is critical</option></select>
+            <select id="offline_processing" onchange="handleQuestion(6)"><option value="">-- Select a requirement --</option><option value="no">No, internet is reliable</option><option value="yes">Yes, offline processing is critical</option></select>
         </div>
-        <div class="question hidden" id="q-international">
+        <div class="question hidden" id="q7">
             <label for="international">7. Does the business serve many international tourists?</label>
-            <select id="international" onchange="updateState()"><option value="">-- Select an audience --</option><option value="no">No, mainly local customers</option><option value="yes">Yes, frequently (needs DCC)</option></select>
+            <select id="international" onchange="handleQuestion(7)"><option value="">-- Select an audience --</option><option value="no">No, mainly local customers</option><option value="yes">Yes, frequently (needs DCC)</option></select>
         </div>
-        <div class="question hidden" id="q-final_feature">
+        <div class="question hidden" id="q8">
             <label for="final_feature">8. Is a built-in printer required?</label>
-            <select id="final_feature" onchange="updateState()"><option value="">-- Select a feature --</option><option value="yes">Yes, a printer is required</option><option value="no">No, a printer is not needed</option></select>
+            <select id="final_feature" onchange="handleQuestion(8)"><option value="">-- Select a feature --</option><option value="yes">Yes, a printer is required</option><option value="no">No, a printer is not needed</option></select>
         </div>
     </form>
     <div id="result" class="hidden"><h2>Recommended Terminal(s)</h2><div id="recommendation"></div></div>
@@ -71,136 +71,149 @@
 <script>
     const terminals = [
         { model: "SFO1", description: "A powerful Android terminal for demanding countertop environments.", category: "Countertop", os: "Android", printer: false, offline: true, dcc: true, input: "touchscreen", card_read: "all", industries: ["large_retail", "hospitality", "luxury"], productUrl: "https://www.adyen.com/devices/sfo1", imageUrl: "https://i.ibb.co/1G2gkCDb/SFO1.webp" },
-        { model: "Tap to Pay on Android", description: "Accept contactless payments directly on an Android device.", category: "Mobile", os: "iOS/Android", printer: false, offline: false, dcc: true, input: "touchscreen", card_read: "contactless_only", industries: ["small_retail", "f&b", "hospitality", "luxury"], productUrl: "https://www.adyen.com/devices/tap-to-pay-on-android", imageUrl: "https://i.ibb.co/gbR8f75n/Tap-to-Pay-on-Android.webp" },
-        { model: "Tap to Pay on iPhone", description: "Accept contactless payments directly on an iPhone.", category: "Mobile", os: "iOS/Android", printer: false, offline: false, dcc: true, input: "touchscreen", card_read: "contactless_only", industries: ["small_retail", "f&b", "hospitality", "luxury"], productUrl: "https://www.adyen.com/devices/tap-to-pay-on-iphone", imageUrl: "https://i.ibb.co/VYxm7W3M/Tap-to-Pay-on-i-Phone.webp" },
-        { model: "NYC1", description: "A versatile Android card reader for businesses on the move.", category: "Mobile", os: "Android", printer: false, offline: true, dcc: true, input: "touchscreen", card_read: "all", industries: ["large_retail", "hospitality", "luxury"], productUrl: "https://www.adyen.com/devices/nyc1", imageUrl: "https://i.ibb.co/BVVFSJZS/NYC1.webp" },
-        { model: "Verifone M450", description: "A premium countertop terminal with a large color touchscreen.", category: "Countertop", os: "Linux", printer: false, offline: true, dcc: true, input: "physical", card_read: "all", industries: ["f&b", "hospitality", "luxury"], productUrl: "https://www.adyen.com/devices/verifone-m450", imageUrl: "https://i.ibb.co/fGMDhPPm/M450.webp" },
+        { model: "Tap to Pay on Android", description: "Accept contactless payments directly on an Android device.", category: "Smartphone", os: "iOS/Android", printer: false, offline: false, dcc: true, input: "touchscreen", card_read: "contactless_only", industries: ["small_retail", "f&b", "hospitality"], productUrl: "https://www.adyen.com/devices/tap-to-pay-on-android", imageUrl: "https://i.ibb.co/gbR8f75n/Tap-to-Pay-on-Android.webp" },
+        { model: "Tap to Pay on iPhone", description: "Accept contactless payments directly on an iPhone.", category: "Smartphone", os: "iOS/Android", printer: false, offline: false, dcc: true, input: "touchscreen", card_read: "contactless_only", industries: ["small_retail", "f&b", "hospitality"], productUrl: "https://www.adyen.com/devices/tap-to-pay-on-iphone", imageUrl: "https://i.ibb.co/VYxm7W3M/Tap-to-Pay-on-i-Phone.webp" },
+        { model: "NYC1", description: "A versatile Android card reader for businesses on the move.", category: "Countertop", os: "Android", printer: false, offline: true, dcc: true, input: "touchscreen", card_read: "all", industries: ["large_retail", "hospitality", "luxury"], productUrl: "https://www.adyen.com/devices/nyc1", imageUrl: "https://i.ibb.co/BVVFSJZS/NYC1.webp" },
+
+
+
+        { model: "Verifone M450", description: "A premium mobile terminal with a large color touchscreen.", category: "Mobile", os: "Linux", printer: false, offline: true, dcc: true, input: "touchscreen", card_read: "all", industries: ["f&b", "hospitality", "luxury"], productUrl: "https://www.adyen.com/devices/verifone-m450", imageUrl: "https://i.ibb.co/fGMDhPPm/M450.webp" },
         { model: "Castles S1F2", description: "An all-in-one mobile terminal with a built-in printer.", category: "Mobile", os: "Android", printer: true, offline: true, dcc: true, input: "touchscreen", card_read: "all", industries: ["f&b", "small_retail", "hospitality"], productUrl: "https://www.adyen.com/devices/castles-s1f2", imageUrl: "https://i.ibb.co/mr4v3DGJ/S1F2.webp" },
+
         { model: "Castles S1U2", description: "An all-in-one Android terminal for self-service kiosks.", category: "Unattended", os: "Android", printer: false, offline: true, dcc: true, input: "touchscreen", card_read: "all", industries: ["large_retail", "hospitality"], productUrl: "https://www.adyen.com/devices/castles-s1u2", imageUrl: "https://i.ibb.co/tT26GsS9/S1U2.webp" },
-        // *** DATA CHANGE: P630 now includes 'f&b' industry ***
-        { model: "Verifone P630", description: "A compact and secure countertop card reader.", category: "Countertop", os: "Linux", printer: false, offline: true, dcc: true, input: "physical", card_read: "all", industries: ["large_retail", "small_retail", "hospitality", "f&b"], productUrl: "https://www.adyen.com/devices/verifone-p630", imageUrl: "https://i.ibb.co/ch40M0Kx/P630.webp" },
-        { model: "AMS1", description: "A pocket-sized and powerful Android terminal for mobile payments.", category: "Mobile", os: "Android", printer: false, offline: true, dcc: true, input: "touchscreen", card_read: "all", industries: ["f&b", "small_retail", "luxury"], productUrl: "https://www.adyen.com/devices/ams1", imageUrl: "https://i.ibb.co/V06CBvZF/AMS1.webp" }
+        { model: "Verifone P630", description: "A compact and secure countertop card reader.", category: "Countertop", os: "Linux", printer: false, offline: true, dcc: true, input: "physical", card_read: "all", industries: ["large_retail", "small_retail", "hospitality"], productUrl: "https://www.adyen.com/devices/verifone-p630", imageUrl: "https://i.ibb.co/ch40M0Kx/P630.webp" },
+
+
+        { model: "AMS1", description: "A pocket-sized and powerful Android terminal for mobile payments.", category: "Mobile", os: "Android", printer: false, offline: true, dcc: true, input: "touchscreen", card_read: "all", industries: ["f&b", "small_retail", "luxury"], productUrl: "https://www.adyen.com/devices/ams1", imageUrl: "https://i.ibb.co/V06CBvZF/AMS1.webp" },
+        { model: "Castles S1E4 Pro", description: "Drop-proof, dust-proof, splash-proof. Discover the mobile terminal that keeps up service all day.", category: "Mobile", os: "Android", printer: false, offline: true, dcc: true, input: "touchscreen", card_read: "all", industries: ["large_retail", "small_retail", "hospitality", "f&b"], productUrl: "https://www.adyen.com/devices/castles-s1e4-pro", imageUrl: "https://i.ibb.co/cSnf8vz5/ey-Jw-YXRo-Ijoi-YWR5-ZW5c-L2-Zpb-GVc-Lzlv-Qn-RWNG1h-RWVXc-E1-NS3-B2d-XNNLn-Bu-Zy-J9-adyen-3qc-GYLZHz.webp" },
+        { model: "Castles S1F4 Pro", description: "Smart, portable, with a printer. Accept payments at the counter or meet customers on the floor.", category: "Mobile", os: "Android", printer: true, offline: true, dcc: true, input: "touchscreen", card_read: "all", industries: ["large_retail", "small_retail", "hospitality", "f&b"], productUrl: "https://www.adyen.com/devices/castles-s1f4-pro", imageUrl: "https://i.ibb.co/nNG5TwXV/ey-Jw-YXRo-Ijoi-YWR5-ZW5c-L2-Zpb-GVc-L1py-ZEx-HWmh-Oem-I5-N1l-RSEFMMVc3-Ln-Bu-Zy-J9-adyen-68k2-Dl-B2.webp" }
     ];
 
-    const questionOrder = ['industry', 'use_case', 'card_read', 'input_type', 'os_type', 'offline_processing', 'international', 'final_feature'];
-    const attributeMap = { industry: 'industries', use_case: 'category', card_read: 'card_read', input_type: 'input', os_type: 'os', offline_processing: 'offline', international: 'dcc', final_feature: 'printer' };
+    const questions = ['industry', 'use_case', 'card_read', 'input_type', 'os_type', 'offline_processing', 'international', 'final_feature'];
 
-    function updateState( ) {
-        let candidates = [...terminals];
-        
-        for (let i = 1; i < questionOrder.length; i++) {
-            document.getElementById(`q-${questionOrder[i]}`).classList.add('hidden');
-        }
+    function getPossibleAnswers(candidates, questionId) {
+        const possible = new Set();
+        const attributeMap = {
+            industry: 'industries',
+            use_case: 'category',
+            card_read: 'card_read',
+            input_type: 'input',
+            os_type: 'os',
+            offline_processing: 'offline',
+            international: 'dcc',
+            final_feature: 'printer'
+        };
+        const attribute = attributeMap[questionId];
 
-        for (let i = 0; i < questionOrder.length; i++) {
-            const qId = questionOrder[i];
-            const select = document.getElementById(qId);
-            const answer = select.value;
-
-            if (!answer) {
-                const industry = document.getElementById('industry').value;
-                if (qId === 'use_case') {
-                    if (industry === 'large_retail') {
-                        const tapToPay = terminals.filter(t => t.card_read === 'contactless_only');
-                        tapToPay.forEach(ttp => {
-                            if (!candidates.some(c => c.model === ttp.model)) candidates.push(ttp);
-                        });
-                    }
-                }
-
-                const possibleValues = getPossibleValues(candidates, qId);
-                if (possibleValues.size === 0) {
-                    displayResult(candidates, true);
-                    return;
-                }
-
-                for (const option of select.options) {
-                    if (option.value) option.disabled = !possibleValues.has(option.value);
-                }
-                
-                const useCase = document.getElementById('use_case').value;
-                if (qId === 'use_case' && (industry === 'large_retail' || industry === 'f&b')) {
-                    for (const option of select.options) if(option.value) option.disabled = false;
-                }
-                if (qId === 'offline_processing' || qId === 'international') {
-                    for (const option of select.options) if(option.value) option.disabled = false;
-                }
-                if (qId === 'input_type' && (industry === 'f&b' || industry === 'hospitality') && useCase === 'unattended') {
-                     for (const option of select.options) if(option.value) option.disabled = false;
-                }
-                if (qId === 'card_read' && industry === 'large_retail' && useCase === 'mobile') {
-                     for (const option of select.options) if(option.value) option.disabled = false;
-                }
-                
-                document.getElementById(`q-${qId}`).classList.remove('hidden');
-                return;
-            }
-
-            if (qId === 'card_read' && document.getElementById('use_case').value === 'mobile' && answer === 'contactless_only') {
-                const tapToPayTerminals = terminals.filter(t => t.card_read === 'contactless_only' && t.category.toLowerCase() === 'mobile');
-                displayResult(tapToPayTerminals);
-                return;
-            }
-
-            document.getElementById(`q-${qId}`).classList.remove('hidden');
-            candidates = filterCandidates(candidates, qId, answer);
-        }
-
-        displayResult(candidates);
-    }
-
-    function filterCandidates(candidates, qId, answer) {
-        if (qId === 'offline_processing' || qId === 'international') {
-            return candidates;
-        }
-
-        const attribute = attributeMap[qId];
-        return candidates.filter(terminal => {
+        candidates.forEach(terminal => {
             const value = terminal[attribute];
-            if (qId === 'industry') return value.includes(answer);
-            if (qId === 'use_case') {
-                if (answer === 'unattended') {
-                    return value.toLowerCase() === 'unattended' || value.toLowerCase() === 'countertop';
-                }
-                if (answer === 'countertop' && terminal.category.toLowerCase() === 'mobile' && terminal.printer === true) {
-                    return true;
-                }
-                return value.toLowerCase() === answer;
+            if (questionId === 'os_type') {
+                possible.add(value === 'Android' ? 'all_in_one' : 'payment_only');
+            } else if (questionId === 'offline_processing') {
+                if (value) possible.add('yes');
+                possible.add('no');
+            } else if (questionId === 'international') {
+                if (value) possible.add('yes');
+                possible.add('no');
+            } else if (questionId === 'final_feature') {
+                possible.add(value ? 'yes' : 'no');
+            } else if (Array.isArray(value)) {
+                value.forEach(v => possible.add(v));
+            } else {
+                possible.add(value.toLowerCase());
             }
-            if (qId === 'card_read') return value === answer;
-            if (qId === 'input_type') return value === answer;
-            if (qId === 'os_type') {
-                if (answer === 'all_in_one') return terminal.os === 'Android';
-                if (answer === 'payment_only') return terminal.os !== 'Android';
-            }
-            if (qId === 'final_feature') {
-                return terminal.printer === (answer === 'yes');
-            }
-            return true;
         });
+        return possible;
     }
 
-    function getPossibleValues(candidates, qId) {
-        const attribute = attributeMap[qId];
-        return new Set(candidates.map(t => {
-            if (qId === 'os_type') return t.os === 'Android' ? 'all_in_one' : 'payment_only';
-            if (['offline_processing', 'international', 'final_feature'].includes(qId)) return t[attribute] ? 'yes' : 'no';
-            if (Array.isArray(t[attribute])) return t[attribute];
-            return t[attribute].toLowerCase();
-        }).flat());
-    }
-
-    function displayResult(result, failsafe = false) {
-        document.getElementById('quiz').classList.add('hidden');
-        document.getElementById('result').classList.remove('hidden');
-        document.getElementById('resetButton').classList.remove('hidden');
-        const recommendationDiv = document.getElementById('recommendation');
+    function updateQuestionOptions(questionId, candidates) {
+        const select = document.getElementById(questionId);
+        if (!select) return;
         
-        let html = '';
-        if (failsafe) {
-            html += '<p style="text-align:center; font-size: 0.9rem; color: #555;">Your specific combination did not match a single terminal. Showing the closest available options:</p>';
+        const possibleValues = getPossibleAnswers(candidates, questionId);
+
+        for (const option of select.options) {
+            if (option.value) { // Skip the default "-- Select --" option
+                option.disabled = !possibleValues.has(option.value);
+            }
+        }
+    }
+
+    function getCurrentCandidates() {
+        let candidates = [...terminals];
+        const answers = {
+            industry: document.getElementById('industry').value,
+            use_case: document.getElementById('use_case').value,
+            card_read: document.getElementById('card_read').value,
+            input_type: document.getElementById('input_type').value,
+            os_type: document.getElementById('os_type').value,
+            offline_processing: document.getElementById('offline_processing').value,
+            international: document.getElementById('international').value,
+            final_feature: document.getElementById('final_feature').value
+        };
+
+        if (answers.industry) candidates = candidates.filter(t => t.industries.includes(answers.industry));
+        if (answers.use_case) candidates = candidates.filter(t => t.category.toLowerCase() === answers.use_case);
+        if (answers.card_read) candidates = candidates.filter(t => t.card_read === answers.card_read);
+        if (answers.input_type) candidates = candidates.filter(t => t.input === answers.input_type);
+        if (answers.os_type) candidates = candidates.filter(t => (t.os === 'Android' && answers.os_type === 'all_in_one') || (t.os === 'Linux' && answers.os_type === 'payment_only'));
+        if (answers.offline_processing === 'yes') candidates = candidates.filter(t => t.offline === true);
+        if (answers.international === 'yes') candidates = candidates.filter(t => t.dcc === true);
+        if (answers.final_feature) candidates = candidates.filter(t => t.printer === (answers.final_feature === 'yes'));
+        
+        return candidates;
+    }
+
+    function handleQuestion(level) {
+        for (let i = level + 1; i <= questions.length; i++) {
+            document.getElementById(`q${i}`).classList.add('hidden');
+            document.getElementById(questions[i-1]).value = "";
         }
 
+        const candidates = getCurrentCandidates();
+        if (candidates.length === 0) {
+            displayResult([]);
+            return;
+        }
+        
+        const useCase = document.getElementById('use_case').value;
+
+        if (level === 1) { // After selecting industry
+            updateQuestionOptions('use_case', candidates);
+            document.getElementById('q2').classList.remove('hidden');
+            return;
+        }
+
+        if (level === 2 && useCase === 'smartphone') {
+            updateQuestionOptions('card_read', candidates);
+            document.getElementById('q3').classList.remove('hidden');
+            return;
+        }
+        if (level === 3 && useCase === 'smartphone') {
+            displayResult(candidates);
+            return;
+        }
+
+        let nextQuestionIndex = level;
+        if (level === 2 && useCase !== 'smartphone') {
+            nextQuestionIndex = 3;
+        }
+        
+        if (nextQuestionIndex < questions.length) {
+            const nextQuestionId = questions[nextQuestionIndex];
+            updateQuestionOptions(nextQuestionId, candidates);
+            document.getElementById(`q${nextQuestionIndex + 1}`).classList.remove('hidden');
+        } else {
+            displayResult(candidates);
+        }
+    }
+
+    function displayResult(result) {
+        const recommendationDiv = document.getElementById('recommendation');
+        document.getElementById('quiz').classList.add('hidden');
+        document.getElementById('resetButton').classList.remove('hidden');
+        document.getElementById('result').classList.remove('hidden');
+        let html = '';
         if (result.length > 0) {
             result.forEach(t => { html += `<div class="terminal-card"><img src="${t.imageUrl}" alt="${t.model}"><div class="terminal-card-info"><h3>${t.model}</h3><p>${t.description}</p><a href="${t.productUrl}" target="_blank">View Product Page &rarr;</a></div></div>`; });
         } else {
@@ -214,13 +227,18 @@
         document.getElementById('quiz').classList.remove('hidden');
         document.getElementById('result').classList.add('hidden');
         document.getElementById('resetButton').classList.add('hidden');
-        for (let i = 1; i < questionOrder.length; i++) {
-            document.getElementById(`q-${questionOrder[i]}`).classList.add('hidden');
+        for (let i = 2; i <= questions.length; i++) {
+            document.getElementById(`q${i}`).classList.add('hidden');
         }
-        document.getElementById('q-industry').classList.remove('hidden');
+        questions.forEach(qId => {
+            const select = document.getElementById(qId);
+            for (const option of select.options) {
+                option.disabled = false;
+            }
+        });
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', (event) => {
         resetQuiz();
     });
 </script>
